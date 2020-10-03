@@ -36,7 +36,66 @@ static int cmd_q(char *args) {
 	return -1;
 }
 
+static int cmd_si(char *args){
+	int cnt=0;
+	if(args!=NULL)
+	  sscanf(args,"%d",&cnt);
+	else
+		cnt=1;
+	cpu_exec(cnt);
+	return 0;
+}
+
+static int cmd_info(char *args){
+	int i;
+	if(args[0]=='r'){
+		for(i=R_EAX;i<=R_EDI;i++)
+			printf("%s\t0x%08x\n",regsl[i],reg_l(i));
+		printf("eip\t0x%08x\n",cpu.eip);
+	}
+	
+	//	info_wp();
+    return 0;
+}
+
+static int cmd_x(char *args){
+	int num;
+	bool flag;
+	swaddr_t start_address;
+	char *c=strtok(args, " ");
+	sscanf(c,"%d",&num);
+	args=c+strlen(c)+1;
+	start_address=expr(args,&flag);
+	if(!flag)
+		assert(1);
+	printf("0x%08x: ",start_address);
+	int i;
+	for(i=1;i<=num;i++){
+		printf("0x%08x ",swaddr_read(start_address,4));
+		start_address+=4;
+	}
+	printf("\n");
+	return 0;
+}
+
+static int cmd_p(char *args){
+	return 0;
+}
+
+static int cmd_w(char *args){
+	return 0;
+}
+
+static int cmd_d(char *args){
+	return 0;
+}
+
+static int cmd_bt(char *args){
+	return 0;
+}
+
 static int cmd_help(char *args);
+
 
 static struct {
 	char *name;
@@ -46,9 +105,15 @@ static struct {
 	{ "help", "Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
+	{ "si", "Step into implementation of N instructions after the suspension of execution. When N is not given, the default is 1.", cmd_si},
+	{ "info", "r for print register state, w for print watchpoint information.", cmd_info},
+	{ "p", "Expression evaluation", cmd_p},
+	{ "x", "Calculate the value of the expression and regard the result as the starting memory address.", cmd_x},
+	{ "w", "Stop the execution of the program if the result of the expression has changed.", cmd_w},
+	{ "d", "Delete the Nth watchpoint", cmd_d},
+	{ "bt", "Print stack frame chain", cmd_bt}
 
 	/* TODO: Add more commands */
-
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
