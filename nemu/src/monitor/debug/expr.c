@@ -65,7 +65,7 @@ Token tokens[32];
 int nr_token;
 
 static bool make_token(char *e) {
-	int position = 0;
+	int position = 0;//now position
 	int i;
 	regmatch_t pmatch;
 	
@@ -90,9 +90,9 @@ static bool make_token(char *e) {
 					case NOTYPE:break;
 					
 					default: 
-						token[nr_token].type=rule[i].token_type;
-						strncpy(token[nr_token].str,substr_start,substr_len-1);
-						token[nr_token].str[substr_len-1]='\0';
+						tokens[nr_token].type=rules[i].token_type;
+						strncpy(tokens[nr_token].str,substr_start,substr_len);
+						tokens[nr_token].str[substr_len-1]='\0';
 						nr_token++;
 				}
 				position+=substr_len;
