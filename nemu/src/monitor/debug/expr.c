@@ -7,7 +7,7 @@
 #include <regex.h>
 
 enum {
-	NOTYPE = 256, EQ, NUMBER
+	NOTYPE = 256, EQ, NEQ, NUMBER, MINUS, AND, OR, POINTER
 
 	/* TODO: Add more token types */
 
@@ -16,22 +16,27 @@ enum {
 static struct rule {
 	char *regex;
 	int token_type;
+	int priority;
 } rules[] = {
 
 	/* TODO: Add more rules.
 	 * Pay attention to the precedence level of different rules.
 	 */
 
-	{" +",	NOTYPE},				// spaces
-	{"\\+", '+'},					// plus
-	{"==", EQ}						// equal
-	{"-", '-'} //sub
-	{"\\*", '*'} //mul
-	{"/", '/'} //div
-	{"	+", NOTYPE} //tabs
-	{"\\b[0-9]+\\b",NUMBER} //numbers
-	{"\\(", '('} //left bracket
-	{"\\)", ')'} //right bracket
+	{" +", NOTYPE,0},				// spaces
+	{"\\+", '+',4},					// plus
+	{"==", EQ,3}						// equal
+	{"-", '-',4} //sub
+	{"\\*", '*',5} //mul
+	{"/", '/',5} //div
+	{"\\t+", NOTYPE,0} //tabs
+	{"\\b[0-9]+\\b",NUMBER,0} //numbers
+	{"\\(", '(',7} //left bracket
+	{"\\)", ')',7} //right bracket
+	{"!=",NEQ,3}    //not equal
+	{"!",'!',6}     //not
+	{"&&",AND,2}
+	{"\\|\\|",OR,1}
 	
 };
 
@@ -109,6 +114,95 @@ static bool make_token(char *e) {
 	return true; 
 }
 
+bool check_parentheses(int l,int r){
+	int i;
+	if(token[l].type=='('&&token[r].type==')'){
+		int lnum=0,rnum=0;
+		for(i=l+1;i<r;i++){
+			if(token[i].type=='(')
+				lnum++;
+			if(token[i].type==')')
+				rnum++;
+			if(lnum<rnum)
+				return false;
+		}
+		if(lnum==rnum)
+			return true;
+	}
+	return false;
+}
+
+//
+int dominent_operator(int l,int r){ 
+	int i;
+	int find=0;
+	int main_op=-1;
+	int main_pr=10;
+	for(i=l;i<=r;i++){
+		if(tokens[i].type==NUMBER)
+			continue;
+		if(tokens[i].type=='(')
+		     find++;
+		if(tokens[i].type==')')
+		     find--;
+		if(find!=0)
+			continue;
+		if(tokens[i].priority<=main_pr){
+			min_pr=tokens[i].priority;
+			mian_op=i;
+		}
+	}
+	return main_op;
+}
+
+uint32_t eval(int l,int r,bool *legal){
+	if(!(*legal))
+		return -1;
+	if(l>r){
+		assert(l>r,"Unkonwn expression calculation error!\n");
+		return -1;
+	}
+	else if(l==r){
+		uint32_t num=0;
+		if(tokens[i].type==NUMBER)
+			sscanf(tokens[i].str,"%d",&num);
+
+
+		return num;		
+	}
+	else if(check_parentheses(l,r)==true){
+		return eval(l+1,r-1,legal);
+	}
+	else{
+		int op=dominent_operator(l,r);
+		if(l==op||tokens[op].type==MINUS){
+			uint32_t val eval(l+1,r,legal);
+			switch(tokens[i].type){
+				case MINUS:return -val;
+				case '!':return !val;
+				default:*success=false;
+						return -1;
+			}
+		}
+		uint32_t val1=eval(l,op-1,legal);
+		uint32_t val2=eval(op+1,r,legal);
+		switch(tokens[l].type){
+			case '+':return val1+val2;
+			case '-':return val1-val2;
+			case '*':return val1*val2;
+			case '/':return val1/val2;
+			case EQ: return val1==val2;
+			case NEQ:return val1!=val2;
+			case AND:return val1&&val2;
+			case OR: return val1||val2;
+			default:
+					*legal=flase;
+					return -1;
+		}
+	}
+
+}
+
 uint32_t expr(char *e, bool *success) {
 	if(!make_token(e)) {
 		*success = false;
@@ -117,10 +211,17 @@ uint32_t expr(char *e, bool *success) {
 
 	/* TODO: Insert codes to evaluate the expression. */
 	int i;
-	for(int i0;i<nr_token;i++){
-
+	for(i=0;i<nr_token;i++){
+		if(tokens[i].type=='-'&&(i==0||tokens[i-1].type!=NUMBER && token[i-1].type!=')')){
+			tokens[i].type=MINUS;
+		}
+	}
+	for(i=0;i<nr_token;i++){
+		if(tokens[i].type=='*'&&(i==0||tokens[i-1].type!=NUMBER && tokens[i-1].type!=')')){
+			tokens[i].type=POINTER;
+		}
 	}
 	*success=true;
-	return 0;
+	return eval(0,nr_token-1,success);
 }
 
