@@ -89,7 +89,7 @@ static int cmd_p(char *args){
 	bool success=true;
 	int result=expr(args,&success);
 	if(!success)
-		printf("illegal");
+		printf("illegal\n");
 	else printf("%#10x\t%d\n",result,result);
 	return 0;
 }

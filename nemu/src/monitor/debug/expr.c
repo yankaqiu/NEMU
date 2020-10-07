@@ -106,7 +106,7 @@ static bool make_token(char *e) {
 						tokens[nr_token].type=rules[i].token_type;
 						tokens[nr_token].priority=rules[i].priority;
 						strncpy(tokens[nr_token].str,substr_start,substr_len);
-						tokens[nr_token].str[substr_len-1]='\0';
+						tokens[nr_token].str[substr_len]='\0';
 						nr_token++;
 						break;
 				}
