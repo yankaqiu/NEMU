@@ -111,7 +111,7 @@ static bool make_token(char *e) {
 						break;
 				}
 				position+=substr_len;
-				//Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
+				Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
 				break;
 			}
 		}
@@ -206,7 +206,7 @@ uint32_t eval(int l,int r,bool *legal){
 				}
 				if(tokens[l].str[1]=='l'||tokens[l].str[1]=='h'){
 					int i;
-					for(i = R_AX; i <= R_DI; i ++){
+					for(i = R_AX; i <= R_BH; i ++){
 				      if(strcmp(tokens[i].str,regsb[i])==0){
 						  break;
 					  }
