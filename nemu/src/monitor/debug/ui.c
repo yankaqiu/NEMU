@@ -48,6 +48,9 @@ static int cmd_si(char *args){
 
 static int cmd_info(char *args){
 	int i;
+	if(args==NULL){
+		printf("Unknown type to print!\n")
+	}
 	if(args[0]=='r'){
 		for(i=R_EAX;i<=R_EDI;i++)
 			printf("%s\t0x%08x\n",regsl[i],reg_l(i));
@@ -79,6 +82,15 @@ static int cmd_x(char *args){
 }
 
 static int cmd_p(char *args){
+	if(args==NULL){
+		printf("Please input the expression to calculate\n");
+		return 0;
+	}
+	bool success=true;
+	int result=expr(args,&success);
+	if(!success)
+		printf("illegal");
+	else printf("%#10x\t%d\n",result,result);
 	return 0;
 }
 

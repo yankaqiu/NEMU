@@ -7,7 +7,7 @@
 #include <regex.h>
 
 enum {
-	NOTYPE = 256, EQ, NEQ, NUMBER, MINUS, AND, OR, POINTER
+	NOTYPE = 256, EQ, NEQ, NUMBER, MINUS, AND, OR, POINTER, REGISTER, HEX
 
 	/* TODO: Add more token types */
 
@@ -30,13 +30,15 @@ static struct rule {
 	{"\\*", '*',5} //mul
 	{"/", '/',5} //div
 	{"\\t+", NOTYPE,0} //tabs
-	{"\\b[0-9]+\\b",NUMBER,0} //numbers
+	{"0[xX][0-9a-fA-F]+",HEX,0}     //hex numbers
+	{"[0-9]+",NUMBER,0} //numbers
 	{"\\(", '(',7} //left bracket
 	{"\\)", ')',7} //right bracket
 	{"!=",NEQ,3}    //not equal
 	{"!",'!',6}     //not
-	{"&&",AND,2}
-	{"\\|\\|",OR,1}
+	{"&&",AND,2}    //and
+	{"\\|\\|",OR,1} //or
+	{"\\$(([ABCD][HLX])|([abcd][hlx]))",REGISTER,0}           //register
 	
 };
 
@@ -93,12 +95,21 @@ static bool make_token(char *e) {
 
 				switch(rules[i].token_type) {
 					case NOTYPE:break;
-					
+					case REGISTER:
+						tokens[nr_token].type=rules[i].token_tupe;
+						tokens[nr_token].priority=rules[i].priority;
+						strncpy(tokens[nr_token].str,start2,substr_len-1);
+						tokens[nr_token].str[substr_len-1]='\0';
+						nr_token++;
+						break;
+					     
 					default: 
 						tokens[nr_token].type=rules[i].token_type;
+						tokens[nr_token].priority=rules[i].priority;
 						strncpy(tokens[nr_token].str,substr_start,substr_len);
 						tokens[nr_token].str[substr_len-1]='\0';
 						nr_token++;
+						break;
 				}
 				position+=substr_len;
 				break;
@@ -139,12 +150,12 @@ int dominent_operator(int l,int r){
 	int main_op=-1;
 	int main_pr=10;
 	for(i=l;i<=r;i++){
-		if(tokens[i].type==NUMBER)
+		if(tokens[i].type==NUMBER||tokens[i].type==HEX||tokens[i].type==REGISTER)
 			continue;
 		if(tokens[i].type=='(')
-		     find++;
+		    find++;
 		if(tokens[i].type==')')
-		     find--;
+		    find--;
 		if(find!=0)
 			continue;
 		if(tokens[i].priority<=main_pr){
@@ -166,8 +177,49 @@ uint32_t eval(int l,int r,bool *legal){
 		uint32_t num=0;
 		if(tokens[i].type==NUMBER)
 			sscanf(tokens[i].str,"%d",&num);
-
-
+		else if(tokens[i].type==HEX)
+			sscanf(tokens[i].str,"%x",&num);
+		else if(tokens[i].type==REGISTER){
+			if(strlen(tokens[i].str)==3){
+				int i;
+				for(i = R_EAX; i <= R_EDI; i ++){
+					if(strcmp(topens[i].str,regsl[i])==0){
+						break;
+					}
+				}
+				if(i>R_EDI){
+					if(strcmp(topens[i].str,"eip")==0)
+						num=cpu.eip;
+					else
+						assert("no this register!\n");
+				}
+				else num=reg_l(i);
+			}
+			else if(strlen(tokens[i].str)==2){
+				if(tokens[i].str[1]=='x'||tokens[i].str[1]=='p'||tokens[i].str[1]=='i'){
+					int i;
+					for(i = R_EAX; i <= R_EDI; i ++){
+				       if(strcmp(tokens[i].str,regsw[i]==0)
+					     break;
+					}
+					num=reg_w(i);
+				}
+				if(tokens[i].str[1]=='l'||tokens[i].str[1]=='h'){
+					int i;
+					for(i = R_EAX; i <= R_EDI; i ++){
+				      if(strcmp(tokens[i].str,regsb[i]==0)){
+						  breakl
+					  }
+					}
+					num=reg_b(i);
+				}
+				else assert(1);
+			}
+		}
+		else if{
+			*legal=false;
+			return -1;
+		}
 		return num;		
 	}
 	else if(check_parentheses(l,r)==true){
@@ -180,7 +232,7 @@ uint32_t eval(int l,int r,bool *legal){
 			switch(tokens[i].type){
 				case MINUS:return -val;
 				case '!':return !val;
-				default:*success=false;
+				default:*legal=false;
 						return -1;
 			}
 		}
@@ -212,13 +264,13 @@ uint32_t expr(char *e, bool *success) {
 	/* TODO: Insert codes to evaluate the expression. */
 	int i;
 	for(i=0;i<nr_token;i++){
-		if(tokens[i].type=='-'&&(i==0||tokens[i-1].type!=NUMBER && token[i-1].type!=')')){
+		if(tokens[i].type=='-'&&(i==0||tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && token[i-1].type!=')')){
 			tokens[i].type=MINUS;
+			tokens[i].priority=6;
 		}
-	}
-	for(i=0;i<nr_token;i++){
-		if(tokens[i].type=='*'&&(i==0||tokens[i-1].type!=NUMBER && tokens[i-1].type!=')')){
+		if(tokens[i].type=='*'&&(i==0||tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=')')){
 			tokens[i].type=POINTER;
+			tokens[i].priority=6;
 		}
 	}
 	*success=true;
