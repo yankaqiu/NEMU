@@ -68,8 +68,8 @@ typedef struct token {
 	char str[32];
 	int priority;
 } Token;
-
-Token tokens[32];
+#define max_token_len 100
+Token tokens[max_token_len];
 int nr_token;
 
 static bool make_token(char *e) {
@@ -86,9 +86,6 @@ static bool make_token(char *e) {
 				char *substr_start = e + position;
 				char *start2=e+position+1;
 				int substr_len = pmatch.rm_eo;
-
-				Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
-				position += substr_len;
 
 				/* TODO: Now a new token is recognized with rules[i]. Add codes
 				 * to record the token in the array `tokens'. For certain types
@@ -114,6 +111,7 @@ static bool make_token(char *e) {
 						break;
 				}
 				position+=substr_len;
+				Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
 				break;
 			}
 		}
