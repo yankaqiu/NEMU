@@ -108,6 +108,7 @@ static bool make_token(char *e) {
 						strncpy(tokens[nr_token].str,substr_start,substr_len);
 						tokens[nr_token].str[substr_len]='\0';
 						nr_token++;
+						break;
 				}
 				position+=substr_len;
 				Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
@@ -165,10 +166,12 @@ int dominent_operator(int l,int r){
 	return main_op;
 }
 
-uint32_t eval(int l,int r){
+uint32_t eval(int l,int r,bool *legal){
+	if(!(*legal))
+		return -1;
 	if(l>r){
 		Assert(l>r,"Unkonwn expression calculation error!\n");
-		return 0;
+		return -1;
 	}
 	else if(l==r){
 		uint32_t num=0;
@@ -213,24 +216,29 @@ uint32_t eval(int l,int r){
 				else assert(1);
 			}
 		}
+		else{
+			*legal=false;
+			return -1;
+		}
 		return num;		
 	}
 	else if(check_parentheses(l,r)==true){
-		return eval(l+1,r-1);
+		return eval(l+1,r-1,legal);
 	}
 	else{
 		int op=dominent_operator(l,r);
 		if(l==op||tokens[op].type==MINUS||tokens[op].type==POINTER||tokens[op].type=='!'){
-			uint32_t val=eval(l+1,r);
+			uint32_t val=eval(l+1,r,legal);
 			switch(tokens[l].type){
 				case POINTER:return swaddr_read(val,4);
 				case MINUS:return -val;
 				case '!':return !val;
-				default:Assert(1,"default\n");
+				default:*legal=false;
+						return -1;
 			}
 		}
-		uint32_t val1=eval(l,op-1);
-		uint32_t val2=eval(op+1,r);
+		uint32_t val1=eval(l,op-1,legal);
+		uint32_t val2=eval(op+1,r,legal);
 		switch(tokens[op].type){
 			case '+':return val1+val2;
 			case '-':return val1-val2;
@@ -240,13 +248,10 @@ uint32_t eval(int l,int r){
 			case NEQ:return val1!=val2;
 			case AND:return val1&&val2;
 			case OR: return val1||val2;
-			default:
-					break;
+			default:*legal=false;
+					return -1;
 		}
 	}
-	assert(1);
-	return -123456;
-
 }
 
 uint32_t expr(char *e, bool *success) {
@@ -268,6 +273,6 @@ uint32_t expr(char *e, bool *success) {
 		}
 	}
 	*success=true;
-	return eval(0,nr_token-1);
+	return eval(0,nr_token-1,success);
 }
 
