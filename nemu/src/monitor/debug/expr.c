@@ -165,12 +165,10 @@ int dominent_operator(int l,int r){
 	return main_op;
 }
 
-uint32_t eval(int l,int r,bool *legal){
-	if(!(*legal))
-		return -1;
+uint32_t eval(int l,int r){
 	if(l>r){
 		Assert(l>r,"Unkonwn expression calculation error!\n");
-		return -1;
+		return 0;
 	}
 	else if(l==r){
 		uint32_t num=0;
@@ -215,29 +213,24 @@ uint32_t eval(int l,int r,bool *legal){
 				else assert(1);
 			}
 		}
-		else {
-			*legal=false;
-			return -1;
-		}
 		return num;		
 	}
 	else if(check_parentheses(l,r)==true){
-		return eval(l+1,r-1,legal);
+		return eval(l+1,r-1);
 	}
 	else{
 		int op=dominent_operator(l,r);
 		if(l==op||tokens[op].type==MINUS||tokens[op].type==POINTER||tokens[op].type=='!'){
-			uint32_t val=eval(l+1,r,legal);
+			uint32_t val=eval(l+1,r);
 			switch(tokens[l].type){
-				//case POINTER:return vaddr_read(val,4);
+				case POINTER:return swaddr_read(val,4);
 				case MINUS:return -val;
 				case '!':return !val;
-				default:*legal=false;
-						return -1;
+				default:Assert(1,"default\n");
 			}
 		}
-		uint32_t val1=eval(l,op-1,legal);
-		uint32_t val2=eval(op+1,r,legal);
+		uint32_t val1=eval(l,op-1);
+		uint32_t val2=eval(op+1,r);
 		switch(tokens[l].type){
 			case '+':return val1+val2;
 			case '-':return val1-val2;
@@ -248,10 +241,11 @@ uint32_t eval(int l,int r,bool *legal){
 			case AND:return val1&&val2;
 			case OR: return val1||val2;
 			default:
-					*legal=false;
-					return -1;
+					break;
 		}
 	}
+	assert(1);
+	return -1;
 
 }
 
@@ -274,6 +268,6 @@ uint32_t expr(char *e, bool *success) {
 		}
 	}
 	*success=true;
-	return eval(0,nr_token-1,success);
+	return eval(0,nr_token-1);
 }
 
