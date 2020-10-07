@@ -38,6 +38,7 @@ static struct rule {
 	{"!",'!',6},     //not
 	{"&&",AND,2},    //and
 	{"\\|\\|",OR,1}, //or
+	{"\\$(eax|EAX|ebx|EBX|ecx|ECX|edx|EDX|esp|ESP|ebp|EBP|esi|ESI|edi|EDI|eip|EIP)"},
 	{"\\$(([ABCD][HLX])|([abcd][hlx]))",REGISTER,0},           //register
 	
 };
