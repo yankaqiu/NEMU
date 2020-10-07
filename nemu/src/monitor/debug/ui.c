@@ -49,7 +49,7 @@ static int cmd_si(char *args){
 static int cmd_info(char *args){
 	int i;
 	if(args==NULL){
-		printf("Unknown type to print!\n")
+		printf("Unknown type to print!\n");
 	}
 	if(args[0]=='r'){
 		for(i=R_EAX;i<=R_EDI;i++)

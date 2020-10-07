@@ -209,7 +209,7 @@ uint32_t eval(int l,int r,bool *legal){
 				if(tokens[l].str[1]=='l'||tokens[l].str[1]=='h'){
 					int i;
 					for(i = R_EAX; i <= R_EDI; i ++){
-				      if(strcmp(tokens[i].str,regsb[i]==0)){
+				      if(strcmp(tokens[i].str,regsb[i])==0){
 						  break;
 					  }
 					}
@@ -266,11 +266,11 @@ uint32_t expr(char *e, bool *success) {
 	/* TODO: Insert codes to evaluate the expression. */
 	int i;
 	for(i=0;i<nr_token;i++){
-		if(tokens[i].type=='-'&&(i==0||tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=')')){
+		if(tokens[i].type=='-'&&(i==0||(tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=')'))){
 			tokens[i].type=MINUS;
 			tokens[i].priority=6;
 		}
-		if(tokens[i].type=='*'&&(i==0||tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=')')){
+		if(tokens[i].type=='*'&&(i==0||(tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=')'))){
 			tokens[i].type=POINTER;
 			tokens[i].priority=6;
 		}
