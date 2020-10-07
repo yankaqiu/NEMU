@@ -147,7 +147,7 @@ bool check_parentheses(int l,int r){
 int dominent_operator(int l,int r){ 
 	int i;
 	int find=0;
-	int main_op=-1;
+	int main_op=1;
 	int main_pr=10;
 	for(i=l;i<=r;i++){
 		if(tokens[i].type==NUMBER||tokens[i].type==HEX||tokens[i].type==REGISTER)
@@ -230,6 +230,7 @@ uint32_t eval(int l,int r,bool *legal){
 		if(l==op||tokens[op].type==MINUS||tokens[op].type==POINTER||tokens[op].type=='!'){
 			uint32_t val=eval(l+1,r,legal);
 			switch(tokens[l].type){
+				//case POINTER:return vaddr_read(val,4);
 				case MINUS:return -val;
 				case '!':return !val;
 				default:*legal=false;
