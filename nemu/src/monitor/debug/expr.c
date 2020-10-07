@@ -195,7 +195,7 @@ uint32_t eval(int l,int r){
 			else if(strlen(tokens[l].str)==2){
 				if(tokens[l].str[1]=='x'||tokens[l].str[1]=='p'||tokens[l].str[1]=='i'){
 					int i;
-					for(i = R_EAX; i <= R_EDI; i ++){
+					for(i = R_AX; i <= R_DI; i ++){
 				       if(strcmp(tokens[i].str,regsw[i])==0)
 					     break;
 					}
@@ -203,7 +203,7 @@ uint32_t eval(int l,int r){
 				}
 				if(tokens[l].str[1]=='l'||tokens[l].str[1]=='h'){
 					int i;
-					for(i = R_EAX; i <= R_EDI; i ++){
+					for(i = R_AX; i <= R_DI; i ++){
 				      if(strcmp(tokens[i].str,regsb[i])==0){
 						  break;
 					  }
@@ -245,7 +245,7 @@ uint32_t eval(int l,int r){
 		}
 	}
 	assert(1);
-	return -1;
+	return -123456;
 
 }
 
