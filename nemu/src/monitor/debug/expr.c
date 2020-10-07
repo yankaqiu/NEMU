@@ -276,4 +276,3 @@ uint32_t expr(char *e, bool *success) {
 	*success=true;
 	return eval(0,nr_token-1,success);
 }
-
