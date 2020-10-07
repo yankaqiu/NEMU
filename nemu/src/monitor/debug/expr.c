@@ -231,7 +231,7 @@ uint32_t eval(int l,int r){
 		}
 		uint32_t val1=eval(l,op-1);
 		uint32_t val2=eval(op+1,r);
-		switch(tokens[l].type){
+		switch(tokens[op].type){
 			case '+':return val1+val2;
 			case '-':return val1-val2;
 			case '*':return val1*val2;
