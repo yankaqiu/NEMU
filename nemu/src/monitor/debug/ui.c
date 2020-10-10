@@ -56,8 +56,8 @@ static int cmd_info(char *args){
 			printf("%s\t0x%08x\n",regsl[i],reg_l(i));
 		printf("eip\t0x%08x\n",cpu.eip);
 	}
-	
-	//	info_wp();
+	if(args[0]=='w')
+		print_wp();
     return 0;
 }
 
@@ -89,20 +89,24 @@ static int cmd_p(char *args){
 	bool success=true;
 	int result=expr(args,&success);
 	if(!success)
-		printf("illegal\n");
+		printf("Illegal\n");
 	else printf("%#10x\t%d\n",result,result);
 	return 0;
 }
 
 static int cmd_w(char *args){
+	new_wp(args);
 	return 0;
 }
 
 static int cmd_d(char *args){
-	return 0;
-}
-
-static int cmd_bt(char *args){
+	int n=0;
+	if(sscanf(args,"%d",&n)==EOF)
+		printf("Please input the right argument!\n");
+	else
+	{
+		del_wp(n);
+	}
 	return 0;
 }
 
@@ -123,7 +127,6 @@ static struct {
 	{ "x", "Calculate the value of the expression and regard the result as the starting memory address.", cmd_x},
 	{ "w", "Stop the execution of the program if the result of the expression has changed.", cmd_w},
 	{ "d", "Delete the Nth watchpoint", cmd_d},
-	{ "bt", "Print stack frame chain", cmd_bt}
 
 	/* TODO: Add more commands */
 };

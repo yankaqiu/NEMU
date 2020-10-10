@@ -19,22 +19,24 @@ void init_wp_pool() {
 }
 
 /* TODO: Implement the functionality of watchpoint */
-WP* new_wp(){
-	WP* f= free_;
-	WP* h;
+WP* new_wp(char* args){
+	bool success=true;
+	int ans=expr(args,&success);
+	if(!success){
+		printf("Set watchpoitn failed!");
+		return NULL;
+	}
+	if(!free_){
+		printf("There is no space left for a new watchpoint!");
+		return NULL;
+	}
+	WP* re=free_;
 	free_=free_->next;
-	f->next=NULL;
-	h=head;
-	if(h==NULL){
-		head=f;
-		h=head;
-	}
-	else{
-		while(h->next!=NULL)
-		 h=h->next;
-		h->next=f;
-	}
-	return f;
+	re->next=head;
+	head=re;
+	strcpy(re->expr,args);
+	re->value=ans;
+	return re;
 }
 
 void free_wp(WP *wp){
@@ -59,7 +61,9 @@ void free_wp(WP *wp){
 		}
 	}
 	if(flag){
-
+		printf("The watchpoint of NO.%d(%s) has been ddeleted!\n",wp->NO,(wp->expr));
+		(wp->expr)[0]='\0';
+		wp->value=0;
 	}
 	else
 	{
@@ -67,3 +71,48 @@ void free_wp(WP *wp){
 	}
 }
 
+void del_wp(int index){
+	if(index>=0 && index<NR_WP)
+		free_wp(&wp_pool[index]);
+	else
+	{
+		printf("Index %d out of range(0<=index<%d\n",index,NR_WP);
+	}
+	
+}
+
+bool check_wp(){
+	WP* p=head;
+	bool ischanged=false;
+	if(!head)
+		return ischanged;
+	while(p){
+		bool success=true;
+		int ans=expr(p->expr, &success);
+		if(ans!=p->value){
+			printf("EXPR: %s\n",p->expr);
+			printf("Previous\t\t\tNow\n");
+			printf("%#8x	%d",p->value,p->value);
+			printf("<==>");
+			printf("%#8x	%d\n",ans,ans);
+			p->value=ans;
+			ischanged=true;
+		}
+		p=p->next;
+	}
+	return ischanged;
+
+}
+
+void print_wp(){
+	WP* p=head;
+	if(!p){
+		printf("No watchpoint to print\n");
+		return ;
+	}
+	printf("NO\tEXPR\t\tValue\t");
+	while(p){
+		printf("%-d\t%-16s%#08x	%d\n",p->NO,p->expr,p->value,p->value);
+		p=p->next;
+	}
+}
