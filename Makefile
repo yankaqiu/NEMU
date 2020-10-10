@@ -35,7 +35,7 @@ game: $(game_BIN)
 ##### rules for cleaning the project #####
 
 count:
-	find ./ -name "*.c" -o -name "*.h" |xargs cat|wc -l
+	find ./nemu -name "*.c" -o -name "*.h" |xargs cat|wc -l
 
 clean-nemu:
 	-rm -rf obj/nemu 2> /dev/null
