@@ -25,3 +25,17 @@
 #include "misc/misc.h"
 
 #include "special/special.h"
+
+#include "control/call.h"
+
+#include "control/push.h"
+
+#include "control/test.h"
+
+#include "control/je.h"
+
+#include "control/cmp.h"
+
+#include "control/pop.h"
+
+#include "control/ret.h"
