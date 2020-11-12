@@ -28,14 +28,59 @@
 
 #include "control/call.h"
 
-#include "control/push.h"
+#include "data-mov/push.h"
 
-#include "control/test.h"
+#include "logic/test.h"
 
 #include "control/je.h"
 
 #include "control/cmp.h"
 
-#include "control/pop.h"
+#include "data-mov/pop.h"
 
 #include "control/ret.h"
+
+#include "arith/sub.h"
+
+#include "arith/add.h"
+
+#include "arith/adc.h"
+
+#include "arith/sbb.h"
+
+#include "logic/setne.h"
+
+#include "control/jmp.h"
+
+#include "control/jle.h"
+
+#include "control/jl.h"
+
+#include "control/ja.h"
+
+#include "control/jg.h"
+
+#include "control/js.h"
+
+#include "control/jns.h"
+
+#include "control/jge.h"
+
+#include "control/je.h"
+
+#include "control/jne.h"
+
+#include "control/jbe.h"
+
+#include "string/lods.h"
+
+#include "string/scas.h"
+
+#include "string/stos.h"
+#include "data-mov/movs.h"
+#include "data-mov/movsb.h"
+#include "data-mov/movsw.h"
+#include "data-mov/movzb.h"
+#include "data-mov/movzw.h"
+#include "data-mov/leave.h"
+#include "data-mov/cltd.h"
