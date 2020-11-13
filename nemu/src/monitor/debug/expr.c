@@ -5,9 +5,10 @@
  */
 #include <sys/types.h>
 #include <regex.h>
+#include <elf.h>
 
 enum {
-	NOTYPE = 256, EQ, NEQ, NUMBER, MINUS, AND, OR, POINTER, REGISTER, HEX
+	NOTYPE = 256, EQ, NEQ, NUMBER, MINUS, AND, OR, POINTER, REGISTER, HEX, MARK
 
 	/* TODO: Add more token types */
 
@@ -40,7 +41,7 @@ static struct rule {
 	{"\\|\\|",OR,1}, //or
 	{"\\$(eax|EAX|ebx|EBX|ecx|ECX|edx|EDX|esp|ESP|ebp|EBP|esi|ESI|edi|EDI|eip|EIP)",REGISTER,0},
 	{"\\$(([ABCD][HLX])|([abcd][hlx]))",REGISTER,0},           //register
-	
+	{"[a-zA-Z][A-Za-z0-9_]*",MARK,0}
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -151,7 +152,7 @@ int dominent_operator(int l,int r){
 	int main_op=1;
 	int main_pr=10;
 	for(i=l;i<=r;i++){
-		if(tokens[i].type==NUMBER||tokens[i].type==HEX||tokens[i].type==REGISTER)
+		if(tokens[i].type==NUMBER||tokens[i].type==HEX||tokens[i].type==REGISTER||tokens[i].type==MARK)
 			continue;
 		if(tokens[i].type=='(')
 		    find++;
@@ -167,6 +168,7 @@ int dominent_operator(int l,int r){
 	return main_op;
 }
 
+uint32_t getAddressFromMArk(char *mark,bool *success);
 uint32_t eval(int l,int r,bool *legal){
 	if(!(*legal))
 		return -1;
@@ -217,6 +219,10 @@ uint32_t eval(int l,int r,bool *legal){
 				else assert(1);
 			}
 		}
+		else if(tokens[l].type==MARK)
+		{
+			return getAddressFromMArk(tokens[l].str,legal);
+		}
 		else{
 			*legal=false;
 			return -1;
@@ -264,11 +270,11 @@ uint32_t expr(char *e, bool *success) {
 	/* TODO: Insert codes to evaluate the expression. */
 	int i;
 	for(i=0;i<nr_token;i++){
-		if(tokens[i].type=='-'&&(i==0||(tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=')'))){
+		if(tokens[i].type=='-'&&(i==0||(tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=MARK && tokens[i-1].type!=')'))){
 			tokens[i].type=MINUS;
 			tokens[i].priority=6;
 		}
-		if(tokens[i].type=='*'&&(i==0||(tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=')'))){
+		if(tokens[i].type=='*'&&(i==0||(tokens[i-1].type!=NUMBER && tokens[i-1].type!=HEX && tokens[i-1].type!=REGISTER && tokens[i-1].type!=MARK && tokens[i-1].type!=')'))){
 			tokens[i].type=POINTER;
 			tokens[i].priority=6;
 		}
