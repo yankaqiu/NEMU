@@ -219,9 +219,11 @@ uint32_t eval(int l,int r,bool *legal){
 				else assert(1);
 			}
 		}
-		if(tokens[l].type==MARK)
+		else if(tokens[l].type==MARK)
 		{
 			num=getAddressFromMArk(tokens[l].str,legal);
+			if(*legal==false)
+			return 0;
 		}
 		else{
 			*legal=false;

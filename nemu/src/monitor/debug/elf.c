@@ -14,7 +14,9 @@ uint32_t getAddressFromMArk(char *mark,bool *success){
 	for(i=0;i<nr_symtab_entry;i++){
 		if((symtab[i].st_info & 0xf)==STT_OBJECT){
 			char markName[30];
-			strcpy(markName,strtab+symtab[i].st_name);
+			int stlen=strlen(mark);
+			strncpy(markName,strtab+symtab[i].st_name,stlen);
+			markName[stlen]='\0';
 			if(strcmp(markName,mark)==0)
 				return symtab[i].st_value;
 		}
