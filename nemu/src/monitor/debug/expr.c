@@ -41,7 +41,7 @@ static struct rule {
 	{"\\|\\|",OR,1}, //or
 	{"\\$(eax|EAX|ebx|EBX|ecx|ECX|edx|EDX|esp|ESP|ebp|EBP|esi|ESI|edi|EDI|eip|EIP)",REGISTER,0},
 	{"\\$(([ABCD][HLX])|([abcd][hlx]))",REGISTER,0},           //register
-	{"[a-zA-Z][A-Za-z0-9_]*",MARK,0}
+	{"\\b[a-zA-Z_0-9]+",MARK,0}
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
