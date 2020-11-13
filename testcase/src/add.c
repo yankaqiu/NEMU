@@ -15,7 +15,9 @@ int main() {
 	int loop = 0;
 	for(i = 0; i < NR_DATA; i ++) {
 		for(j = 0; j < NR_DATA; j ++) {
+			set_bp();
 			nemu_assert(add(test_data[i], test_data[j]) == ans[ans_idx ++]);
+			set_bp();
 			loop ++;
 		}
 	}
