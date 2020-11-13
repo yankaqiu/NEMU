@@ -110,7 +110,6 @@ static bool make_token(char *e) {
 						strncpy(tokens[nr_token].str,substr_start,substr_len);
 						tokens[nr_token].str[substr_len]='\0';
 						nr_token++;
-						break;
 				}
 				position+=substr_len;
 				//Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
