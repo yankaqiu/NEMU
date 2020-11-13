@@ -22,7 +22,7 @@ uint32_t getAddressFromMArk(char *mark,bool *success){
 		}
 	}
 	*success=false;
-	return 0;
+	return -1;
 }
 
 void load_elf_tables(int argc, char *argv[]) {

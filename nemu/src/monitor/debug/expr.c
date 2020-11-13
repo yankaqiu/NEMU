@@ -223,8 +223,10 @@ uint32_t eval(int l,int r,bool *legal){
 		{
 			num=getAddressFromMArk(tokens[l].str,legal);
 			Log("match %d",num);
-			if(*legal==false)
-			   assert(1);
+		}
+		else{
+			*legal =false;
+			return -1;
 		}
 		return num;		
 	}
