@@ -41,7 +41,7 @@ static struct rule {
 	{"\\|\\|",OR,1}, //or
 	{"\\$(eax|EAX|ebx|EBX|ecx|ECX|edx|EDX|esp|ESP|ebp|EBP|esi|ESI|edi|EDI|eip|EIP)",REGISTER,0},
 	{"\\$(([ABCD][HLX])|([abcd][hlx]))",REGISTER,0},           //register
-	{"\\b[a-zA-Z_0-9]+",MARK,0}
+	{"[a-zA-Z][A-Za-z0-9_]*",MARK,0}
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -110,6 +110,7 @@ static bool make_token(char *e) {
 						strncpy(tokens[nr_token].str,substr_start,substr_len);
 						tokens[nr_token].str[substr_len]='\0';
 						nr_token++;
+						break;
 				}
 				position+=substr_len;
 				//Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i, rules[i].regex, position, substr_len, substr_len, substr_start);
@@ -218,9 +219,9 @@ uint32_t eval(int l,int r,bool *legal){
 				else assert(1);
 			}
 		}
-		else if(tokens[l].type==MARK)
+		if(tokens[l].type==MARK)
 		{
-			return getAddressFromMArk(tokens[l].str,legal);
+			num=getAddressFromMArk(tokens[l].str,legal);
 		}
 		else{
 			*legal=false;
