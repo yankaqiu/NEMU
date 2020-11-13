@@ -41,7 +41,7 @@ static struct rule {
 	{"\\|\\|",OR,1}, //or
 	{"\\$(eax|EAX|ebx|EBX|ecx|ECX|edx|EDX|esp|ESP|ebp|EBP|esi|ESI|edi|EDI|eip|EIP)",REGISTER,0},
 	{"\\$(([ABCD][HLX])|([abcd][hlx]))",REGISTER,0},           //register
-	{"\\b[a-zA-Z_0-9+",MARK,0},
+	{"\\b[a-zA-Z_0-9]+",MARK,0},
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -222,6 +222,7 @@ uint32_t eval(int l,int r,bool *legal){
 		else if(tokens[l].type==MARK)
 		{
 			num=getAddressFromMArk(tokens[l].str,legal);
+			Log("match %d",num);
 			if(*legal==false)
 			   assert(1);
 		}
