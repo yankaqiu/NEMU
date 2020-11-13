@@ -20,6 +20,7 @@ int main() {
 			set_bp();
 			loop ++;
 		}
+		set_bp();
 	}
 
 	nemu_assert(loop == NR_DATA * NR_DATA);
