@@ -90,7 +90,7 @@ static int cmd_p(char *args){
 	int result=expr(args,&success);
 	if(!success)
 		printf("Illegal\n");
-	else printf("%#10x\t%d\n",result,result);
+	else printf("Expression %s : 0x%x\n", args, result);
 	return 0;
 }
 
@@ -106,6 +106,29 @@ static int cmd_d(char *args){
 	else
 	{
 		del_wp(n);
+	}
+	return 0;
+}
+
+void getFunctionFromAddress(swaddr_t addr, char *s);
+
+static int cmd_bt(char *args){
+	swaddr_t now_ebp = reg_l(R_EBP);
+	swaddr_t now_ret = cpu.eip;
+	int cnt = 0, i;
+	char name[50];
+	while(now_ebp) {
+		getFunctionFromAddress(now_ret, name);
+		if(name[0] == '\0') break;
+		printf("#%d 0x%x: ", ++cnt, now_ret);
+		printf("%s (", name);
+		for(i = 0; i < 4; i++) {
+			printf("%d", swaddr_read(now_ebp + 8 + i * 4, 4));
+			printf("%c", i == 3 ? ')' : ',');
+		}
+		now_ret = swaddr_read(now_ebp + 4, 4);
+		now_ebp = swaddr_read(now_ebp, 4);
+		printf("\n");
 	}
 	return 0;
 }
@@ -127,7 +150,7 @@ static struct {
 	{ "x", "Calculate the value of the expression and regard the result as the starting memory address.", cmd_x},
 	{ "w", "Stop the execution of the program if the result of the expression has changed.", cmd_w},
 	{ "d", "Delete the Nth watchpoint", cmd_d},
-
+	{ "bt", "Print backtrace", cmd_bt },
 	/* TODO: Add more commands */
 };
 
