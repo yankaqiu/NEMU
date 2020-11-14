@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "FLOAT.h"
+#include <sys/mman.h>
 
 extern char _vfprintf_internal;
 extern char _fpmaxtostr;
@@ -16,7 +17,19 @@ __attribute__((used)) static int format_FLOAT(FILE *stream, FLOAT f) {
 	 */
 
 	char buf[80];
-	int len = sprintf(buf, "0x%08x", f);
+	int sign = f & 0x80000000, len, cd = 0;
+	if(sign) f = (~f) + 1;
+	int hehe = 500000000, i = 15;
+	for(i = 15; i >= 0; i--) {
+		if(f & (1 << i)) cd += hehe;
+		hehe >>= 1;
+	}
+	while(cd > 999999) cd /= 10;
+	if(sign) {
+		len = (sprintf) (buf, "-%d.%06d", ((int)(f) >> 16), cd);
+	} else {
+		len = (sprintf) (buf, "%d.%06d", ((int)(f) >> 16), cd);
+	}
 	return __stdio_fwrite(buf, len, stream);
 }
 
@@ -26,6 +39,32 @@ static void modify_vfprintf() {
 	 * is the code section in _vfprintf_internal() relative to the
 	 * hijack.
 	 */
+	int addr = &_vfprintf_internal;	//begin
+
+	mprotect((void *)((addr + 0x306 - 0x64) & 0xfffff000), 4096 * 2, PROT_READ | PROT_WRITE | PROT_EXEC);
+
+	char *sub = (char *)(addr + 0x306 - 0xb);	
+	*sub = 0x8;		
+	sub = (char *)(addr + 0x306 - 0xa);
+	*sub = 0xff;
+	sub = (char *)(addr + 0x306 - 0x9);
+	*sub = 0x32;
+	sub = (char *)(addr + 0x306 - 0x8);
+	*sub = 0x90;	
+
+	sub = (char *)(addr + 0x306 - 30);
+	*sub = 0x90;
+	sub = (char *)(addr + 0x306 - 29);
+	*sub = 0x90;
+	sub = (char *)(addr + 0x306 - 33);
+	*sub = 0x90;
+	sub = (char *)(addr + 0x306 - 34);
+	*sub = 0x90; 
+
+	int *pos = (int *)(addr + 0x307);
+
+	*pos += (int)format_FLOAT - (int)(&_fpmaxtostr);
+
 
 #if 0
 	else if (ppfs->conv_num <= CONV_A) {  /* floating point */
